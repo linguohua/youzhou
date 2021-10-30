@@ -1,4 +1,5 @@
 listen_addr: ":9009"
+hardcore_delay: 4
 anchors:
   - anchor:
     url: "https://api.node.glif.io/rpc/v0"

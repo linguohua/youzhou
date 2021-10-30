@@ -20,6 +20,8 @@ import (
 
 var anchorCached = AnchorData2{}
 var anchorConfigs = []*AnchorConfig{}
+var hardcoreDelay = 0
+
 var listenAddr string
 
 type AnchorData2 struct {
@@ -114,6 +116,10 @@ func httpCallAnchor(cfg *AnchorConfig) AnchorResult {
 }
 
 func callAnchor() {
+	if hardcoreDelay > 0 {
+		time.Sleep(time.Duration(hardcoreDelay) * time.Second)
+	}
+
 	var wg sync.WaitGroup
 	var results = make([]AnchorResult, len(anchorConfigs))
 	for i, c := range anchorConfigs {
@@ -177,6 +183,7 @@ func anchorBlocksCountByHeight(height uint64) (int, error) {
 
 type ServerCfg struct {
 	ListenAddr    string          `yaml:"listen_addr"`
+	HardcoreDelay int             `yaml:"hardcore_delay"`
 	AnchorConfigs []*AnchorConfig `yaml:"anchors"`
 }
 
@@ -195,6 +202,7 @@ func loadConfig(configFilePath string) {
 	log.Infof("server configs:%+v\n", serverCfg)
 	listenAddr = serverCfg.ListenAddr
 	anchorConfigs = serverCfg.AnchorConfigs
+	hardcoreDelay = serverCfg.HardcoreDelay
 }
 
 type AnchorHeightReply struct {
