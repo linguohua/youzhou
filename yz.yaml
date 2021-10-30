@@ -1,0 +1,10 @@
+listen_addr: ":9009"
+anchors:
+  - anchor:
+    url: "https://api.node.glif.io/rpc/v0"
+    timeout: 3
+  - anchor:
+    url: "https://api.node.glif.io/rpc/v0"
+    timeout: 3
+    user: "20Dcg9LmCdJXyQIhlYTtqxTMCmj"
+    password: "2de8b78a52ceafd4e1c57a2e4693de7a"
