@@ -149,6 +149,8 @@ func callAnchor() {
 	result := results[0]
 	anchorCached.height = result.Height
 	anchorCached.blockCount = result.Blocks
+
+	log.Infof("update anchor cache, height:%d, block count:%d, url:%s", result.Height, result.Blocks, result.URL)
 }
 
 func anchorBlocksCountByHeight(height uint64) (int, error) {
@@ -195,26 +197,6 @@ func loadConfig(configFilePath string) {
 	anchorConfigs = serverCfg.AnchorConfigs
 }
 
-func main() {
-	configFilePath := flag.String("path", "./yz.yaml", "config file path")
-	flag.Parse()
-
-	loadConfig(*configFilePath)
-
-	// Echo instance
-	e := echo.New()
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// Routes
-	e.GET("/filecoin/head", handlerHead)
-
-	// Start server
-	e.Logger.Fatal(e.Start(listenAddr))
-}
-
 type AnchorHeightReply struct {
 	Code int    `json:"code"`
 	Err  string `json:"error"`
@@ -252,4 +234,27 @@ func handlerHead(c echo.Context) error {
 	reply.Height = height
 	reply.Blocks = blk
 	return c.JSON(http.StatusOK, reply)
+}
+
+func main() {
+	configFilePath := flag.String("path", "./yz.yaml", "config file path")
+	flag.Parse()
+
+	// Echo instance
+	e := echo.New()
+	if l, ok := e.Logger.(*log.Logger); ok {
+		l.SetHeader("${time_rfc3339} ${level}")
+	}
+
+	loadConfig(*configFilePath)
+
+	// Middleware
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	// Routes
+	e.GET("/filecoin/head", handlerHead)
+
+	// Start server
+	e.Logger.Fatal(e.Start(listenAddr))
 }
