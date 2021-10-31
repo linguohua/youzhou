@@ -136,6 +136,7 @@ func callAnchor() {
 
 	wg.Wait()
 
+	var diff = false
 	sort.Slice(results, func(i, j int) bool {
 		if results[i].Height > results[j].Height {
 			return true
@@ -146,11 +147,16 @@ func callAnchor() {
 		}
 
 		if results[i].Blocks > results[j].Blocks {
+			diff = true
 			return true
 		}
 
 		return false
 	})
+
+	if diff {
+		log.Warnf("callAnchor has diff blocks")
+	}
 
 	result := results[0]
 	anchorCached.height = result.Height
@@ -199,7 +205,7 @@ func loadConfig(configFilePath string) {
 		log.Fatalf("error: %v", err)
 	}
 
-	log.Infof("server configs:%+v\n", serverCfg)
+	log.Infof("server configs:%+v", serverCfg)
 	listenAddr = serverCfg.ListenAddr
 	anchorConfigs = serverCfg.AnchorConfigs
 	hardcoreDelay = serverCfg.HardcoreDelay
