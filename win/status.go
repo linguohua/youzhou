@@ -19,7 +19,7 @@ type WinDataStatus struct {
 func handlerStatus(c echo.Context) error {
 	s := wdMgr.status()
 
-	return c.JSONPretty(http.StatusOK, &s, "\t")
+	return c.JSONPretty(http.StatusOK, &s, "    ")
 }
 
 func handlerClear(c echo.Context) error {
