@@ -9,11 +9,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	sizeKeep = 1024
+)
+
 var (
 	wdMgr = &WinDataMgr{
-		reports: make([]*WinReport, 0, 1024),
-		orphans: make([]*WinReport, 0, 1024),
-		wins:    make([]*WinReport, 0, 1024),
+		reports: make([]*WinReport, 0, sizeKeep),
+		orphans: make([]*WinReport, 0, sizeKeep),
+		wins:    make([]*WinReport, 0, sizeKeep),
 	}
 )
 
@@ -69,6 +73,11 @@ func (mgr *WinDataMgr) addOrphanBlock(wr *WinReport) {
 	defer mgr.lock.Unlock()
 
 	mgr.orphans = append(mgr.orphans, wr)
+	if len(mgr.orphans) == sizeKeep {
+		// trim
+		copy(mgr.orphans[0:sizeKeep/2], mgr.orphans[sizeKeep/2:])
+		mgr.orphans = mgr.orphans[0 : sizeKeep/2]
+	}
 }
 
 func (mgr *WinDataMgr) addWinBlock(wr *WinReport) {
@@ -76,6 +85,11 @@ func (mgr *WinDataMgr) addWinBlock(wr *WinReport) {
 	defer mgr.lock.Unlock()
 
 	mgr.wins = append(mgr.wins, wr)
+	if len(mgr.wins) == sizeKeep {
+		// trim
+		copy(mgr.wins[0:sizeKeep/2], mgr.wins[sizeKeep/2:])
+		mgr.wins = mgr.wins[0 : sizeKeep/2]
+	}
 }
 
 func (mgr *WinDataMgr) takeWinReports(deadline *time.Time) []*WinReport {
