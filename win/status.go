@@ -11,13 +11,15 @@ type WinDataStatus struct {
 	OrphansCount          int `json:"OrphansCount"`
 	WinCount              int `json:"WinCount"`
 
+	Wins    []*WinReport `json:"wins"`
 	Orphans []*WinReport `json:"Orphans"`
 }
 
 // Handler
 func handlerStatus(c echo.Context) error {
 	s := wdMgr.status()
-	return c.JSON(http.StatusOK, &s)
+
+	return c.JSONPretty(http.StatusOK, &s, "\t")
 }
 
 func handlerClear(c echo.Context) error {

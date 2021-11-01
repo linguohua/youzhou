@@ -41,10 +41,15 @@ func (mgr *WinDataMgr) status() *WinDataStatus {
 		OrphansCount:          len(mgr.orphans),
 		WinCount:              len(mgr.wins),
 		Orphans:               make([]*WinReport, len(mgr.orphans)),
+		Wins:                  make([]*WinReport, len(mgr.wins)),
 	}
 
 	for i, o := range mgr.orphans {
 		s.Orphans[i] = o
+	}
+
+	for i, o := range mgr.wins {
+		s.Wins[i] = o
 	}
 
 	return s

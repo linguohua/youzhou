@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
 
 type WinReport struct {
@@ -29,6 +30,8 @@ func handlerReport(c echo.Context) error {
 	if wr.CID == "" || wr.Miner == "" || wr.Height == 0 {
 		return c.String(400, "invalid report")
 	}
+
+	log.Infof("miner:%s report win, height:%d, took:%s", wr.Miner, wr.Height, wr.Took)
 
 	wr.time = time.Now()
 	wdMgr.addWinReport(wr)
