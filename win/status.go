@@ -17,7 +17,9 @@ type WinDataStatus struct {
 
 // Handler
 func handlerStatus(c echo.Context) error {
-	s := wdMgr.status()
+	win := c.QueryParam("win") == "1"
+
+	s := wdMgr.status(win)
 
 	return c.JSONPretty(http.StatusOK, &s, "    ")
 }
@@ -25,6 +27,6 @@ func handlerStatus(c echo.Context) error {
 func handlerClear(c echo.Context) error {
 	wdMgr.clearHistory()
 
-	s := wdMgr.status()
+	s := wdMgr.status(false)
 	return c.JSON(http.StatusOK, &s)
 }

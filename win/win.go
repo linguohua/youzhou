@@ -32,7 +32,7 @@ func (mgr *WinDataMgr) clearHistory() {
 	mgr.wins = mgr.wins[0:0]
 }
 
-func (mgr *WinDataMgr) status() *WinDataStatus {
+func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
 	mgr.lock.Lock()
 	defer mgr.lock.Unlock()
 
@@ -41,15 +41,17 @@ func (mgr *WinDataMgr) status() *WinDataStatus {
 		OrphansCount:          len(mgr.orphans),
 		WinCount:              len(mgr.wins),
 		Orphans:               make([]*WinReport, len(mgr.orphans)),
-		Wins:                  make([]*WinReport, len(mgr.wins)),
 	}
 
 	for i, o := range mgr.orphans {
 		s.Orphans[i] = o
 	}
 
-	for i, o := range mgr.wins {
-		s.Wins[i] = o
+	if win {
+		s.Wins = make([]*WinReport, len(mgr.wins))
+		for i, o := range mgr.wins {
+			s.Wins[i] = o
+		}
 	}
 
 	return s
