@@ -11,7 +11,7 @@ type WinDataStatus struct {
 	OrphansCount          int `json:"OrphansCount"`
 	WinCount              int `json:"WinCount"`
 
-	Wins    []*WinReport `json:"wins"`
+	Wins    []*WinReport `json:"Wins"`
 	Orphans []*WinReport `json:"Orphans"`
 }
 
