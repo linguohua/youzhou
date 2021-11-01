@@ -1,6 +1,7 @@
 package win
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -160,20 +161,20 @@ func processWinReports() {
 				rsp2, ok := tipsetGet(height - 1)
 				if ok {
 					if r.Parents != len(rsp2.Data.Blocks) {
-						r.OrphanReason = "parents not match"
+						r.OrphanReason = fmt.Sprintf("parents not match, %d != %d", r.Parents, len(rsp2.Data.Blocks))
 					}
 				}
 
 				if len(r.OrphanReason) == 0 {
 					dur, err := time.ParseDuration(r.Took)
 					if err == nil && dur >= (time.Second*25) {
-						r.OrphanReason = "timeout"
+						r.OrphanReason = fmt.Sprintf("timeout, %s", r.Took)
 					}
 					wdMgr.addOrphanBlock(r)
 				}
 
 				if len(r.OrphanReason) == 0 {
-					r.OrphanReason = "unknown"
+					r.OrphanReason = "unknown, check miner log"
 				}
 
 				log.Infof("miner orphan %s, height:%d, reason:%s", r.Miner, r.Height, r.OrphanReason)
