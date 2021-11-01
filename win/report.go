@@ -8,10 +8,13 @@ import (
 )
 
 type WinReport struct {
-	Miner  string `json:"miner"`
-	CID    string `json:"cid"`
-	Height uint64 `json:"height"`
-	Took   string `json:"took"`
+	Miner   string `json:"miner"`
+	CID     string `json:"cid"`
+	Height  uint64 `json:"height"`
+	Took    string `json:"took"`
+	Parents int    `json:"parents"`
+
+	OrphanReason string `json:"reason"`
 
 	time time.Time
 }

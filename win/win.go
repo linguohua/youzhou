@@ -115,23 +115,47 @@ func processWinReports() {
 	}
 
 	cached := make(map[uint64]*FilscoutResp)
-	for _, r := range reports {
-		height := r.Height
-		rsp, ok := cached[height]
+	tipsetGet := func(h uint64) (*FilscoutResp, bool) {
+		rsp, ok := cached[h]
 		if !ok {
-			rsp, ok = loadTipsetFromFilscout(height)
+			rsp, ok = loadTipsetFromFilscout(h)
 			if ok {
-				cached[height] = rsp
+				cached[h] = rsp
 			}
 		}
 
+		return rsp, ok
+	}
+
+	for _, r := range reports {
+		height := r.Height
+		rsp, ok := tipsetGet(height)
+
 		if ok {
 			if rsp.hasCID(r.CID) {
-				log.Infof("miner %s win, height:%d", r.Miner, r.Height)
+				log.Infof("miner win %s, height:%d", r.Miner, r.Height)
 				wdMgr.addWinBlock(r)
 			} else {
-				log.Infof("miner %s orphan, height:%d", r.Miner, r.Height)
-				wdMgr.addOrphanBlock(r)
+				rsp2, ok := tipsetGet(height - 1)
+				if ok {
+					if r.Parents != len(rsp2.Data.Blocks) {
+						r.OrphanReason = "parents not match"
+					}
+				}
+
+				if len(r.OrphanReason) == 0 {
+					dur, err := time.ParseDuration(r.Took)
+					if err == nil && dur >= (time.Second*25) {
+						r.OrphanReason = "timeout"
+					}
+					wdMgr.addOrphanBlock(r)
+				}
+
+				if len(r.OrphanReason) == 0 {
+					r.OrphanReason = "unknown"
+				}
+
+				log.Infof("miner orphan %s, height:%d, reason:%s", r.Miner, r.Height, r.OrphanReason)
 			}
 		} else {
 			log.Errorf("failed to get tipset, drop report, miner:%s, height:%d", r.Miner, r.Height)
