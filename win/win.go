@@ -158,6 +158,8 @@ func processWinReports() {
 				log.Infof("miner win %s, height:%d", r.Miner, r.Height)
 				wdMgr.addWinBlock(r)
 			} else {
+				wdMgr.addOrphanBlock(r)
+
 				rsp2, ok := tipsetGet(height - 1)
 				if ok {
 					if r.Parents != len(rsp2.Data.Blocks) {
@@ -170,7 +172,6 @@ func processWinReports() {
 					if err == nil && dur >= (time.Second*25) {
 						r.OrphanReason = fmt.Sprintf("timeout, %s", r.Took)
 					}
-					wdMgr.addOrphanBlock(r)
 				}
 
 				if len(r.OrphanReason) == 0 {
@@ -178,6 +179,7 @@ func processWinReports() {
 				}
 
 				log.Infof("miner orphan %s, height:%d, reason:%s", r.Miner, r.Height, r.OrphanReason)
+
 			}
 		} else {
 			log.Errorf("failed to get tipset, drop report, miner:%s, height:%d", r.Miner, r.Height)
