@@ -54,7 +54,7 @@ func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
 		OrphansCount:          len(mgr.orphans),
 		WinCount:              len(mgr.wins),
 		Orphans:               make([]*WinReport, len(mgr.orphans)),
-		Duration:              time.Since(mgr.timeOfHistory),
+		Duration:              time.Since(mgr.timeOfHistory).String(),
 	}
 
 	for i, o := range mgr.orphans {
