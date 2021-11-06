@@ -2,16 +2,20 @@ package win
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
 
 type WinDataStatus struct {
-	UnhandledReportsCount int `json:"UnhandledReportsCount"`
-	OrphansCount          int `json:"OrphansCount"`
-	WinCount              int `json:"WinCount"`
+	UnhandledReportsCount int           `json:"UnhandledCount"`
+	Duration              time.Duration `json:"Duration"`
+	OrphansCount          int           `json:"OrphansCount"`
+	WinCount              int           `json:"WinCount"`
 
-	Wins    []*WinReport `json:"Wins"`
+	LastOrphansTime string `json:"LastOrphan,omitempty"`
+
+	Wins    []*WinReport `json:"Wins,omitempty"`
 	Orphans []*WinReport `json:"Orphans"`
 }
 

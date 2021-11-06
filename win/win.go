@@ -19,6 +19,8 @@ var (
 		reports: make([]*WinReport, 0, sizeKeep),
 		orphans: make([]*WinReport, 0, sizeKeep),
 		wins:    make([]*WinReport, 0, sizeKeep),
+
+		timeOfHistory: time.Now(),
 	}
 )
 
@@ -27,6 +29,10 @@ type WinDataMgr struct {
 	reports []*WinReport
 	orphans []*WinReport
 	wins    []*WinReport
+
+	timeOfHistory time.Time
+
+	timeOfLastOrphan *time.Time
 }
 
 func (mgr *WinDataMgr) clearHistory() {
@@ -35,6 +41,8 @@ func (mgr *WinDataMgr) clearHistory() {
 
 	mgr.orphans = mgr.orphans[0:0]
 	mgr.wins = mgr.wins[0:0]
+
+	mgr.timeOfHistory = time.Now()
 }
 
 func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
@@ -46,6 +54,7 @@ func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
 		OrphansCount:          len(mgr.orphans),
 		WinCount:              len(mgr.wins),
 		Orphans:               make([]*WinReport, len(mgr.orphans)),
+		Duration:              time.Since(mgr.timeOfHistory),
 	}
 
 	for i, o := range mgr.orphans {
@@ -57,6 +66,10 @@ func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
 		for i, o := range mgr.wins {
 			s.Wins[i] = o
 		}
+	}
+
+	if mgr.timeOfLastOrphan != nil {
+		s.LastOrphansTime = time.Since(*mgr.timeOfLastOrphan).String()
 	}
 
 	return s
@@ -79,6 +92,9 @@ func (mgr *WinDataMgr) addOrphanBlock(wr *WinReport) {
 		copy(mgr.orphans[0:sizeKeep/2], mgr.orphans[sizeKeep/2:])
 		mgr.orphans = mgr.orphans[0 : sizeKeep/2]
 	}
+
+	t := wr.time
+	mgr.timeOfLastOrphan = &t
 }
 
 func (mgr *WinDataMgr) addWinBlock(wr *WinReport) {
