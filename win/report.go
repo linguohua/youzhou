@@ -15,7 +15,7 @@ type WinReport struct {
 	Took    string `json:"took"`
 	Parents int    `json:"parents"`
 
-	OrphanReason string `json:"reason"`
+	OrphanReason string `json:"reason,omitempty"`
 
 	time time.Time
 }
