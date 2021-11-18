@@ -215,7 +215,7 @@ func processWinReports() {
 
 			}
 		} else {
-			log.Errorf("failed to get tipset, drop report, miner:%s, height:%d", r.Miner, r.Height)
+			log.Errorf("failed to get tipset, try later, miner:%s, height:%d", r.Miner, r.Height)
 			// retry again
 			time.Sleep(3 * time.Second)
 		}
