@@ -15,9 +15,12 @@ type WinReport struct {
 	Took    string `json:"took"`
 	Parents int    `json:"parents"`
 
+	AnchorWait int  `json:"anchorWait"`
+	NewBase    bool `json:"rebase"`
+
 	OrphanReason string `json:"reason,omitempty"`
 
-	time time.Time
+	Time *time.Time `json:"time,omitempty"`
 }
 
 // Handler
@@ -33,7 +36,8 @@ func handlerReport(c echo.Context) error {
 
 	log.Infof("miner:%s report win, height:%d, took:%s", wr.Miner, wr.Height, wr.Took)
 
-	wr.time = time.Now()
+	t := time.Now()
+	wr.Time = &t
 	wdMgr.addWinReport(wr)
 
 	return c.JSON(http.StatusOK, wr)

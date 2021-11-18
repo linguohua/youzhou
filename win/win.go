@@ -30,6 +30,9 @@ type WinDataMgr struct {
 	orphans []*WinReport
 	wins    []*WinReport
 
+	rebaseCounter     int
+	anchorWaitCounter int
+
 	timeOfHistory time.Time
 
 	timeOfLastOrphan *time.Time
@@ -55,6 +58,9 @@ func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
 		WinCount:              len(mgr.wins),
 		Orphans:               make([]*WinReport, len(mgr.orphans)),
 		Duration:              time.Since(mgr.timeOfHistory).String(),
+
+		RebaseCounter:     mgr.rebaseCounter,
+		AnchorWaitCounter: mgr.anchorWaitCounter,
 	}
 
 	for i, o := range mgr.orphans {
@@ -79,6 +85,14 @@ func (mgr *WinDataMgr) addWinReport(wr *WinReport) {
 	mgr.lock.Lock()
 	defer mgr.lock.Unlock()
 
+	if wr.NewBase {
+		mgr.rebaseCounter++
+	}
+
+	if wr.AnchorWait > 0 {
+		mgr.anchorWaitCounter = mgr.anchorWaitCounter + wr.AnchorWait
+	}
+
 	mgr.reports = append(mgr.reports, wr)
 }
 
@@ -93,8 +107,8 @@ func (mgr *WinDataMgr) addOrphanBlock(wr *WinReport) {
 		mgr.orphans = mgr.orphans[0 : sizeKeep/2]
 	}
 
-	t := wr.time
-	mgr.timeOfLastOrphan = &t
+	t := wr.Time
+	mgr.timeOfLastOrphan = t
 }
 
 func (mgr *WinDataMgr) addWinBlock(wr *WinReport) {
@@ -115,7 +129,7 @@ func (mgr *WinDataMgr) takeWinReports(deadline *time.Time) []*WinReport {
 
 	var index = 0
 	for _, wr := range mgr.reports {
-		if deadline.Before(wr.time) {
+		if deadline.Before(*wr.Time) {
 			break
 		}
 		index++
@@ -165,11 +179,14 @@ func processWinReports() {
 		return rsp, ok
 	}
 
-	for _, r := range reports {
+	for i := 0; i < len(reports); {
+		r := reports[i]
 		height := r.Height
 		rsp, ok := tipsetGet(height)
 
 		if ok {
+			// next report
+			i++
 			if rsp.hasCID(r.CID) {
 				log.Infof("miner win %s, height:%d", r.Miner, r.Height)
 				wdMgr.addWinBlock(r)
@@ -199,6 +216,8 @@ func processWinReports() {
 			}
 		} else {
 			log.Errorf("failed to get tipset, drop report, miner:%s, height:%d", r.Miner, r.Height)
+			// retry again
+			time.Sleep(3 * time.Second)
 		}
 	}
 }

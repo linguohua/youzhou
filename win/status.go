@@ -12,6 +12,9 @@ type WinDataStatus struct {
 	OrphansCount          int    `json:"OrphansCount"`
 	WinCount              int    `json:"WinCount"`
 
+	RebaseCounter     int `json:"Rebase"`
+	AnchorWaitCounter int `json:"AnchorWait"`
+
 	LastOrphansTime string `json:"LastOrphan,omitempty"`
 
 	Wins    []*WinReport `json:"Wins,omitempty"`
