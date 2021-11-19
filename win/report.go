@@ -15,8 +15,7 @@ type WinReport struct {
 	Took    string `json:"took"`
 	Parents int    `json:"parents"`
 
-	AnchorWait int  `json:"anchorWait"`
-	NewBase    bool `json:"rebase"`
+	NewBase bool `json:"rebase"`
 
 	OrphanReason string `json:"reason,omitempty"`
 

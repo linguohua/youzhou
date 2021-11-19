@@ -30,8 +30,7 @@ type WinDataMgr struct {
 	orphans []*WinReport
 	wins    []*WinReport
 
-	rebaseCounter     int
-	anchorWaitCounter int
+	rebaseCounter int
 
 	timeOfHistory time.Time
 
@@ -59,8 +58,7 @@ func (mgr *WinDataMgr) status(win bool) *WinDataStatus {
 		Orphans:               make([]*WinReport, len(mgr.orphans)),
 		Duration:              time.Since(mgr.timeOfHistory).String(),
 
-		RebaseCounter:     mgr.rebaseCounter,
-		AnchorWaitCounter: mgr.anchorWaitCounter,
+		RebaseCounter: mgr.rebaseCounter,
 	}
 
 	for i, o := range mgr.orphans {
@@ -87,10 +85,6 @@ func (mgr *WinDataMgr) addWinReport(wr *WinReport) {
 
 	if wr.NewBase {
 		mgr.rebaseCounter++
-	}
-
-	if wr.AnchorWait > 0 {
-		mgr.anchorWaitCounter = mgr.anchorWaitCounter + wr.AnchorWait
 	}
 
 	mgr.reports = append(mgr.reports, wr)
